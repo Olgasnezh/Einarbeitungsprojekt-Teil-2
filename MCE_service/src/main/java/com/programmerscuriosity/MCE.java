@@ -1,18 +1,13 @@
 package com.programmerscuriosity;
 
 import com.daojpa.model.Customer;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import com.daojpa.model.CustomerDao;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.QueryParam;
 import javax.persistence.RollbackException;
-import javax.persistence.EntityManager;
-
-
 
 /**
  * Created on 28/05/18.
@@ -22,18 +17,11 @@ import javax.persistence.EntityManager;
 
 public class MCE {
 
-    private EntityManagerFactory currentSession;
-    private static EntityManager em;
+    private static CustomerDao customerDao;
 
-
-    private EntityManager createEntityManagerPrivate(){
-        EntityManagerFactory emf = Persistence
-                .createEntityManagerFactory("Customer");
-        em = emf.createEntityManager();
-        em.getTransaction().begin();
-        return em;
+    public MCE(){
+    customerDao = new CustomerDao();
     }
-
 
     @GET
     @Produces(MediaType.TEXT_HTML)
@@ -64,10 +52,10 @@ public class MCE {
 
        String ret = "Success";
        try {
-    em = createEntityManagerPrivate();
-    Customer emp = new Customer(id, firstName, secondName, email, phone);
-    em.persist(emp);
-    em.getTransaction().commit();
+
+    Customer customer = new Customer(id, firstName, secondName, email, phone);
+    customerDao.persist(customer);
+
 
     }
 
@@ -84,10 +72,8 @@ public class MCE {
     public String deleteCustomer(@QueryParam("id") int id){
         String ret = "Success";
         try {
-            em = createEntityManagerPrivate();
-            Customer emp = em.find(Customer.class, id);
-            em.remove(emp);
-            em.getTransaction().commit();
+
+            customerDao.remove(id);
         }
 
         catch (IllegalArgumentException e) {
@@ -103,12 +89,11 @@ public class MCE {
     public String searchCustomer(@QueryParam("id") int id){
         String ret;
         try {
-            em = createEntityManagerPrivate();
 
-            Customer emp = em.find(Customer.class, id);
 
-            ret =" Person Id: "+emp.getId()+ " First name: " + emp.getFirstName()+ " Second Name: " + emp.getSecondName()+ " Email: " + emp.getEmail()+ " Phone: " + emp.getPhone();
-            em.getTransaction().commit();
+            Customer customer = customerDao.findById(id);
+            ret = customer.toString();
+
         }
 
         catch (IllegalArgumentException e)
@@ -126,24 +111,10 @@ public class MCE {
     {
         String ret = "Success";
         try {
-            em = createEntityManagerPrivate();
 
-            Customer emp = em.find(Customer.class, id);
+           Customer customer = new Customer( id, firstName, secondName, email, phone);
+            customerDao.update(customer);
 
-            if (firstName!=null){
-            emp.setFirstName(firstName);
-            }
-            if(secondName!=null) {
-                emp.setSecondName(secondName);
-            }
-            if(email!=null) {
-                emp.setEmail(email);
-            }
-            if(phone!=null){
-                emp.setPhone(phone);
-            }
-
-            em.getTransaction().commit();
         }
 
         catch (IllegalArgumentException e) {

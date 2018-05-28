@@ -74,6 +74,10 @@ public class Customer {
         return phone;
     }
 
+    public String toString(){
+        return  "Person Id: " + getId()+ " First name: " + getFirstName()+ " Second Name: " + getSecondName()+ " Email: " + getEmail()+ " Phone: " + getPhone();
+    }
+
 }
 
 
